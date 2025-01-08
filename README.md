@@ -1,1 +1,1 @@
-# aws_hosted_pms
+# Project Management system to be hosted on AWS
