@@ -1,0 +1,68 @@
+{% extends 'projectapp/base.html' %}
+
+{% block title %}Project List{% endblock %}
+
+{% block content %}
+<h1>Projects</h1>
+
+
+<ul>
+    {% for project in project_results %}
+    <li>
+        <h3><a href="{% url 'project_detail' project.id %}">{{ project.title }}</a></h3>
+
+        
+        
+        <p>Description: {{ project.description }}</p>
+
+        <!-- Add Task Button -->
+        <button 
+            onclick="window.location.href='{% url 'task_create' project.id %}'" 
+            {% if not can_add_task %}disabled style="opacity: 0.85; cursor: not-allowed;"{% endif %}>
+            Add Task
+        </button>
+
+        <!-- Link to edit project -->            
+        <button 
+            onclick="window.location.href='{% url 'project_edit' project.id %}'" 
+            {% if not can_change_project %}disabled style="opacity: 0.85; cursor: not-allowed;"{% endif %}>
+            Edit Project
+        </button>
+        
+        <!-- Delete Project Button with Confirmation -->
+        <button 
+            onclick="confirmDeleteProject('{{ project.id }}')" 
+            {% if not can_delete_project %}disabled style="opacity: 0.85; cursor: not-allowed;"{% endif %}>
+            Delete Project
+        </button>
+
+        <!-- Inline form for project deletion -->
+        <form id="deleteProjectForm-{{ project.id }}" action="{% url 'project_delete' project.id %}" method="POST" style="display:none;">
+            {% csrf_token %}
+        </form>
+
+        <ul>
+            {% for task in project.tasks.all %}
+            <li>
+                <div class="{% if task.is_overdue %}overdue-task{% endif %}">
+                <a href="{% url 'task_detail' task.id %}" target="_blank">{{ task.title }}</a> - 
+                {{ task.get_priority_display }} - {{ task.status }} - Due: {{ task.due_date }}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>      
+
+        
+        
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    function confirmDeleteProject(projectId) {
+        if (confirm("Are you sure you want to delete this project?")) {
+            document.getElementById(`deleteProjectForm-${projectId}`).submit();
+        }
+    }
+</script>
+{% endblock %}
